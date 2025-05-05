@@ -4,6 +4,33 @@ from utils.get_translation import get_translation
 from spice.analyze import analyze_file
 
 
+def analyze_to_dict(file, selected_stats=None):
+    """
+    Analyze the given file and return results as a dictionary.
+    This function is used by tests and the JSON output functionality.
+    
+    Args:
+        file (str): Path to the file to analyze
+        selected_stats (list): List of stats to include in analysis
+        
+    Returns:
+        dict: Analysis results in dictionary format
+    """
+    # If no stats specified, use all available stats
+    if selected_stats is None:
+        selected_stats = [
+            "line_count",
+            "function_count", 
+            "comment_line_count",
+            "inline_comment_count",
+            "external_dependencies_count",
+            "indentation_level"
+        ]
+    
+    # Get analysis results from analyze_file
+    return analyze_file(file, selected_stats=selected_stats)
+
+
 def analyze_command(file, all, json_output, LANG_FILE):
     """
     Analyze the given file.
@@ -18,6 +45,7 @@ def analyze_command(file, all, json_output, LANG_FILE):
         "function_count", 
         "comment_line_count",
         "inline_comment_count",
+        "external_dependencies_count",
         "indentation_level"
     ]
 
@@ -27,6 +55,7 @@ def analyze_command(file, all, json_output, LANG_FILE):
         "function_count": messages.get("function_count_option", "Function Count"),
         "comment_line_count": messages.get("comment_line_count_option", "Comment Line Count"),
         "inline_comment_count": messages.get("inline_comment_count_option", "Inline Comment Count"),
+        "external_dependencies_count": messages.get("external_dependencies_count_option", "External Dependencies Count"),
         "indentation_level": messages.get("indentation_level_option", "Indentation Analysis")
     }
     
@@ -68,8 +97,8 @@ def analyze_command(file, all, json_output, LANG_FILE):
         if not json_output:
             print(f"{messages.get('analyzing_file', 'Analyzing file')}: {file}")
         
-        # get analysis results from analyze_file
-        results = analyze_file(file, selected_stats=selected_stat_keys)
+        # get analysis results using analyze_to_dict function
+        results = analyze_to_dict(file, selected_stats=selected_stat_keys)
         
         # output in JSON format if flag
         if json_output:
